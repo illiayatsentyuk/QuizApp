@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+</head>
+<style>
+    .question-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .question-title {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .options {
+        margin-left: 20px;
+    }
+    .option {
+        margin: 5px 0;
+        padding: 5px;
+    }
+    .correct {
+        color: #2ecc71;
+    }
+</style>
+<body>
+    <header>
+        <a href="/create-quiz">Create Quiz</a>
+        <a href="/all-quizzes">Quizzes</a>
+        <a href="/all-questions">Questions</a>
+        <a href="/find-quiz">Quiz Categories</a>
+        <a href="/">Home</a>
+    </header>
+    <h1>Questions</h1>
+    <div id="questions"></div>
+</body>
+</html>
+<script>
+    window.onload = function () {
+        const questions = document.querySelector("#questions");
+        fetch("/questions").then(res => res.json()).then(data => {
+            console.log('Received data:', data);
+            data.questions.forEach(question => {
+                // Check if question and options exist
+                if (!question || !question.answ) {
+                    console.error('Invalid question format:', question);
+                    return;
+                }
+                console.log(question);
+                const options = question.answ.map((option, index) => `
+                    <div class="option ${question.correct === index ? 'correct' : ''}">
+                        ${index + 1}. ${option}
+                    </div>
+                `).join('');
+
+                questions.innerHTML += `
+                    <div class="question-card">
+                        <div class="question-title">${question.text}</div>
+                        <div class="options">${options}</div>
+                    </div>
+                `;
+            });
+        }).catch(error => {
+            console.error('Error fetching questions:', error);
+            questions.innerHTML = '<p>Error loading questions. Please try again later.</p>';
+        });
+    }
+</script>
+

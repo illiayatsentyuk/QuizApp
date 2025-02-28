@@ -30,7 +30,7 @@ router.post(
           return false;
         }
         value.forEach((element) => {
-          if (!element.title.trim().length > 0 || !element.title) {
+          if (!element.text.trim().length > 0 || !element.text) {
             console.log(element);
             a += 1;
             return;
@@ -52,7 +52,7 @@ router.post(
           return true;
         }
       }),
-    body("author").trim(),
+    // body("author").trim(),
   ],
   quizController.postQuiz
 );
@@ -60,5 +60,11 @@ router.post(
 router.get("/quiz", quizController.getQuiz);
 
 router.get("/quizzes", quizController.getQuizzes);
+
+router.get("/find-quiz", quizController.renderQuizCategories);
+
+router.get("/all-quizzes", quizController.renderAllQuizzes);
+
+router.get("/create-quiz", quizController.renderCreateQuiz);
 
 module.exports = router;

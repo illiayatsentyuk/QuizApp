@@ -6,10 +6,6 @@ const router = express.Router();
 
 router.get("/questions", questionsController.getQuestions);
 
-router.post(
-  "/questions",
-  [body("title").trim().isLength({ min: 5 }), body("answ").isArray({ min: 2 })],
-  questionsController.addQuestion
-);
+router.get("/all-questions", questionsController.renderAllQuestions);
 
 module.exports = router;

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/script.js"></script>
+    <title>Create Quiz</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        /* Header styling */
+        header {
+            background-color: #2c3e50;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            margin-right: 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        header a:hover {
+            background-color: #34495e;
+        }
+
+        /* Page title */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin: 2rem 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        /* Create quiz form container */
+        .create-quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Form elements styling */
+        .create-quiz-container label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .create-quiz-container input,
+        .create-quiz-container textarea {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1.8rem;
+            border: 2px solid #e1e4e8;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        .create-quiz-container input:focus,
+        .create-quiz-container textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .create-quiz-container textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        /* Help text for questions format */
+        .format-help {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+
+        /* Create button styling */
+        #create-quiz {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 2rem auto 0;
+            padding: 1rem 2rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #create-quiz:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        #create-quiz:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .create-quiz-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            header a {
+                display: inline-block;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/create-quiz">Create Quiz</a>
+        <a href="/all-quizzes">Quizzes</a>
+        <a href="/all-questions">Questions</a>
+        <a href="/find-quiz">Quiz Categories</a>
+        <a href="/">Home</a>
+    </header>
+    <h1>Create New Quiz</h1>
+    <div class="create-quiz-container">
+        <label for="quiz-name">Quiz Name</label>
+        <input type="text" id="quiz-name" placeholder="Enter the name of your quiz">
+        
+        <label for="quiz-category">Quiz Category</label>
+        <input type="text" id="quiz-category" placeholder="Enter the category (e.g., Science, History)">
+        
+        <label for="quiz-form">Quiz Form</label>
+        <input type="text" id="quiz-form" placeholder="Enter the quiz form">
+        
+        <label for="quiz-questions">Quiz Questions</label>
+        <div class="format-help">
+            Format: Question;Option1 Option2 Option3 Option4;CorrectAnswer
+            <br>
+            Add each question on a new line
+        </div>
+        <textarea id="quiz-questions" 
+                  placeholder="Example:&#10;What is the capital of France?;Paris London Berlin Madrid;Paris&#10;Which planet is closest to the sun?;Venus Mercury Mars Earth;Mercury"></textarea>
+        
+        <button id="create-quiz">Create Quiz</button>
+    </div>
+</body>
+</html>
+<script>
+    window.onload = function () {
+        const quizName = document.querySelector("#quiz-name");
+        const quizCategory = document.querySelector("#quiz-category");
+        const quizForm = document.querySelector("#quiz-form");
+        const quizQuestions = document.querySelector("#quiz-questions");
+        const quizCorrectAnswers = document.querySelector("#quiz-correct-answers");
+        const createQuiz = document.querySelector("#create-quiz");
+        createQuiz.addEventListener("click", () => {
+            const array = []
+            const quizArray = quizQuestions.value.split("\n");
+            const quizQuestionsArray = quizArray.map(el => el.split(";")[0]);
+            const quizAnswersArray = quizArray.map(el => el.split(";")[1]);
+            const quizNewAnswersArray = quizAnswersArray.map(el => el.split(" "));
+            const quizCorrectAnswersArray = quizArray.map(el => el.split(";")[2]);
+            for (let i = 0; i < quizQuestionsArray.length; i++) {
+                array.push({
+                    text: quizQuestionsArray[i],
+                    answ: quizNewAnswersArray[i],
+                    correct: quizCorrectAnswersArray[i]
+                })
+            }
+            console.log({
+                    name: quizName.value,
+                    category: quizCategory.value,
+                    form: quizForm.value,
+                    questions: array,
+                });
+            fetch("http://localhost:3000/quiz", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: quizName.value,
+                    category: quizCategory.value,
+                    form: quizForm.value,
+                    questions: array,
+                }),
+            }).then(res => res.json()).then(data => {
+                console.log(data);
+                location.href = '/find-quiz?id=' + data.quiz._id;   
+            }).catch(err => {
+                console.log(err);
+            });
+        });
+    };
+</script>

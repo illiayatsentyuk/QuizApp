@@ -5,12 +5,12 @@ const { validationResult } = require("express-validator");
 
 exports.postQuiz = async (req, res, next) => {
   const errors = validationResult(req);
-
+  console.log(req.body);
   const name = req.body.name;
   const category = req.body.category;
   const form = req.body.form;
   const questions = req.body.questions;
-  const author = req.body.author;
+  const author = "Illia";
 
   try {
     if (!errors.isEmpty()) {
@@ -22,7 +22,7 @@ exports.postQuiz = async (req, res, next) => {
 
     const idOfQuestions = await Promise.all(
       questions.map(async (el) => {
-        const text = el.title;
+        const text = el.text;
         const answ = el.answ;
         const correct = el.correct;
 
@@ -116,4 +116,17 @@ exports.getQuizzes = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+exports.renderQuizCategories = async (req, res, next) => {
+  return res.render("find-quiz");
+};
+exports.renderAllQuizzes = async (req, res, next) => {
+  return res.render("quizzes");
+};
+exports.renderAllQuestions = async (req, res, next) => {
+  return res.render("questions");
+};
+exports.renderCreateQuiz = async (req, res, next) => {
+  return res.render("create-quiz");
 };

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        .quiz-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .submit-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/create-quiz">Create Quiz</a>
+        <a href="/all-quizzes">Quizzes</a>
+        <a href="/all-questions">Questions</a>
+        <a href="/find-quiz">Quiz Categories</a>
+        <a href="/">Home</a>
+    </header>
+    <div class="quiz-container">
+        <div id="quiz-content"></div>
+    </div>
+
+    <h1>Quiz Categories</h1>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get quiz ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const quizId = urlParams.get('id');
+            console.log(quizId);
+            // Fetch quiz data
+            fetch(`http://localhost:3000/quiz?id=${quizId}`)
+                .then(response => response.json())
+                .then(res => {
+                    const quiz = res.quizzes[0];
+                    const quizContent = document.getElementById('quiz-content');
+                    console.log(quiz);
+                    // Display quiz name
+                    quizContent.innerHTML = `
+                        <h1>${quiz.name}</h1>
+                        <p>Category: ${quiz.category}</p>
+                        <form id="quiz-form">
+                            ${quiz.questions.map((question, index) => `
+                                <div class="question">
+                                    <h3>Question ${index + 1}: ${question.text}</h3>
+                                    <div class="options">
+                                        ${question.answ.map(answer => `
+                                            <label>
+                                                <input type="radio" 
+                                                       name="question${index}" 
+                                                       value="${answer}">
+                                                ${answer}
+                                            </label>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                            <button type="submit" class="submit-btn">Submit Quiz</button>
+                        </form>
+                    `;
+
+                    // Handle form submission
+                    document.getElementById('quiz-form').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const answers = [];
+                        quiz.questions.forEach((_, index) => {
+                            const selected = document.querySelector(`input[name="question${index}"]:checked`);
+                            console.log(selected ? selected.value.split(")")[0] : console.log("no"));
+                            answers.push(selected ? selected.value.split(")")[0] : null);
+                        });
+
+                        // Calculate score
+                        let score = 0;
+                        answers.forEach((answer, index) => {
+                            if (answer === quiz.questions[index].correct) {
+                                score++;
+                            }
+                        });
+
+                        // Display results
+                        alert(`Your score: ${score} out of ${quiz.questions.length}`);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching quiz:', error);
+                    document.getElementById('quiz-content').innerHTML = 
+                        '<p>Error loading quiz. Please try again later.</p>';
+                });
+        });
+    </script>
+</body>
+</html>
