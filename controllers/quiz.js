@@ -12,8 +12,6 @@ exports.postQuiz = async (req, res, next) => {
   const questions = req.body.questions;
   const author = req.body.author;
 
-  let idOfQuestions = [];
-
   try {
     if (!errors.isEmpty()) {
       const error = new Error("Validation failed");
@@ -39,7 +37,6 @@ exports.postQuiz = async (req, res, next) => {
         return savedQuestion._id.toString();
       })
     );
-    console.log(idOfQuestions);
     const quiz = new Quiz({
       name: name,
       category: category,
@@ -51,6 +48,71 @@ exports.postQuiz = async (req, res, next) => {
     const savedQuiz = await quiz.save();
 
     return res.json({ message: "Quiz created", quiz: savedQuiz });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getQuiz = async (req, res, next) => {
+  const { id, name, category, form } = req.query;
+  const currentPage = req.query.page || 1;
+  const perPage = 2;
+
+  try {
+    let filterQuery = {};
+
+    // Build filter query based on provided parameters
+    if (id) filterQuery._id = id;
+    if (name) filterQuery.name = name;
+    if (category) filterQuery.category = category;
+    if (form) filterQuery.form = form;
+
+    const totalItems = await Quiz.find(filterQuery).countDocuments();
+    const quizzes = await Quiz.find(filterQuery)
+      .skip((currentPage - 1) * perPage)
+      .limit(perPage)
+      .populate("questions");
+
+    if (!quizzes.length) {
+      const error = new Error("No quizzes found matching the criteria");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (id) {
+      return res.json({
+        message: "Quiz",
+        quizzes: quizzes,
+        totalItems: totalItems,
+        currentPage: currentPage,
+      });
+    }
+
+    return res.json({
+      message: "Filtered quizzes",
+      quizzes: quizzes,
+      totalItems: totalItems,
+      currentPage: currentPage,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getQuizzes = async (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const perPage = 2;
+  try {
+    const totalItems = await Quiz.find().countDocuments();
+    const quizzes = await Quiz.find()
+      .skip((currentPage - 1) * perPage)
+      .limit(perPage);
+    return res.json({
+      message: "Quizzes",
+      quizzes: quizzes,
+      totalItems: totalItems,
+      currentPage: currentPage,
+    });
   } catch (err) {
     next(err);
   }

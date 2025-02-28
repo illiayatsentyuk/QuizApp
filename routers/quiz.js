@@ -57,4 +57,8 @@ router.post(
   quizController.postQuiz
 );
 
+router.get("/quiz", quizController.getQuiz);
+
+router.get("/quizzes", quizController.getQuizzes);
+
 module.exports = router;
