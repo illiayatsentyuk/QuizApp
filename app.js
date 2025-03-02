@@ -29,7 +29,7 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
-mongoose.connect("mongodb://127.0.0.1:27017/QuizApp").then((res) => {
+mongoose.connect("mongodb+srv://grut2077:I562530y2009@node-course-shop.8ylfs.mongodb.net/QuizApp").then((res) => {
   app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
   });
