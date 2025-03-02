@@ -107,12 +107,23 @@ exports.getQuizzes = async (req, res, next) => {
     const quizzes = await Quiz.find()
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
+      
     return res.json({
       message: "Quizzes",
       quizzes: quizzes,
       totalItems: totalItems,
       currentPage: currentPage,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getQuizById = async (req, res, next) => {
+  try {
+    const { id } = req.query;
+    const quiz = await Quiz.findById(id).populate("questions");
+    return res.render("getQuizById", { quiz });
   } catch (err) {
     next(err);
   }

@@ -114,81 +114,141 @@
         color: #2c3e50;
         margin: 2rem 0;
     }
+    /* Search and filter container */
+    .search-filter-container {
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        padding: 1rem;
+    }
+
+    .search-bar {
+        width: 100%;
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .filter-form select {
+        flex: 1;
+        padding: 0.8rem;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .quiz-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .quiz-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+
+    .quiz-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .quiz-card h3 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .quiz-card p {
+        color: #666;
+        font-size: 0.9rem;
+    }
 </style>
 </head>
 <body>
     <header>
         <a href="/create-quiz">Create Quiz</a>
-        <a href="/all-quizzes">Quizzes</a>
-        <a href="/all-questions">Questions</a>
-        <a href="/find-quiz">Quiz Categories</a>
+        <a href="/all-quizzes">All Quizzes</a>
+        <a href="/all-questions">All Questions</a>
+        <a href="/find-quiz">Search Quiz</a>
         <a href="/">Home</a>
     </header>
     <div class="quiz-container">
         <div id="quiz-content"></div>
     </div>    
-    <h1>Quiz Categories</h1>
+    <h1>Find quiz</h1>
+    
+    <div class="search-filter-container">
+        <input type="text" class="search-bar" id="searchBar" placeholder="Search quizzes...">
+        <form class="filter-form">
+            <select id="categoryFilter">
+                <option value="">All Categories</option>
+                <option value="math">Mathematics</option>
+                <option value="science">Science</option>
+                <option value="history">History</option>
+                <option value="literature">Literature</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="quiz-grid" id="quizGrid">
+        <p style="text-align: center; grid-column: 1/-1;">Use the search bar or select a category to find quizzes</p>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Get quiz ID from URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const quizId = urlParams.get('id');
-            // Fetch quiz data
-            fetch(`http://localhost:3000/quiz?id=${quizId}`)
-                .then(response => response.json())
-                .then(res => {
-                    const quiz = res.quizzes[0];
-                    const quizContent = document.getElementById('quiz-content');
-                    // Display quiz name
-                    quizContent.innerHTML = `
-                        <h1>${quiz.name}</h1>
-                        <p>Category: ${quiz.category}</p>
-                        <form id="quiz-form">
-                            ${quiz.questions.map((question, index) => `
-                                <div class="question">
-                                    <h3>Question ${index + 1}: ${question.text}</h3>
-                                    <div class="options">
-                                        ${question.answ.map(answer => `
-                                            <label>
-                                                <input type="radio" 
-                                                       name="question${index}" 
-                                                       value="${answer}">
-                                                ${answer}
-                                            </label>
-                                        `).join('')}
+            const searchBar = document.getElementById('searchBar');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const quizGrid = document.getElementById('quizGrid');
+
+            function fetchAndDisplayQuizzes() {
+                const searchTerm = searchBar.value.toLowerCase();
+                const category = categoryFilter.value;
+
+                // Only fetch if there's a search term or category selected
+                if (searchTerm || category) {
+                    fetch(`http://localhost:3000/quizzes?search=${searchTerm}&category=${category}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.quizzes.length === 0) {
+                                quizGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No quizzes found</p>';
+                            } else {
+                                quizGrid.innerHTML = data.quizzes.map(quiz => `
+                                    <div class="quiz-card">
+                                        <h3>${quiz.name}</h3>
+                                        <p>Category: ${quiz.category}</p>
+                                        <p>Questions: ${quiz.questionCount}</p>
+                                        <a href="/getQuizById?id=${quiz._id}" class="submit-btn">Start Quiz</a>
                                     </div>
-                                </div>
-                            `).join('')}
-                            <button type="submit" class="submit-btn">Submit Quiz</button>
-                        </form>
-                    `;
-
-                    // Handle form submission
-                    document.getElementById('quiz-form').addEventListener('submit', (e) => {
-                        e.preventDefault();
-                        const answers = [];
-                        quiz.questions.forEach((_, index) => {
-                            const selected = document.querySelector(`input[name="question${index}"]:checked`);
-                            answers.push(selected ? selected.value.split(")")[0] : null);
-                        });
-
-                        // Calculate score
-                        let score = 0;
-                        answers.forEach((answer, index) => {
-                            if (answer === quiz.questions[index].correct) {
-                                score++;
+                                `).join('');
                             }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching quizzes:', error);
+                            quizGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Error loading quizzes. Please try again later.</p>';
                         });
+                } else {
+                    quizGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Use the search bar or select a category to find quizzes</p>';
+                }
+            }
 
-                        // Display results
-                        alert(`Your score: ${score} out of ${quiz.questions.length}`);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching quiz:', error);
-                    document.getElementById('quiz-content').innerHTML = 
-                        '<p>Error loading quiz. Please try again later.</p>';
-                });
+            // Add event listeners
+            searchBar.addEventListener('input', fetchAndDisplayQuizzes);
+            categoryFilter.addEventListener('change', fetchAndDisplayQuizzes);
+
+            // Remove initial load
+            // fetchAndDisplayQuizzes();
         });
     </script>
 </body>

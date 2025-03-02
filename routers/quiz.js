@@ -56,8 +56,9 @@ router.post(
   ],
   quizController.postQuiz
 );
+router.get("/getQuizById", quizController.getQuizById);
 
-router.get("/quiz", quizController.getQuiz);
+router.get("/quizzes", quizController.getQuiz);
 
 router.get("/quizzes", quizController.getQuizzes);
 

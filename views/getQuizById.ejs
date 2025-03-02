@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+<style>
+    /* Reset and base styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        background-color: #f5f7fa;
+        color: #333;
+    }
+    /* Header styling */
+    header {
+        background-color: #2c3e50;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    header a {
+        color: white;
+        text-decoration: none;
+        margin-right: 1.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    header a:hover {
+        background-color: #34495e;
+    }
+    /* Quiz container styling */
+    .quiz-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    /* Question styling */
+    .question {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #3498db;
+    }
+    .question h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+    /* Options styling */
+    .options {
+        padding-left: 1rem;
+    }
+    .options label {
+        display: block;
+        margin: 0.8rem 0;
+        padding: 0.8rem 1rem;
+        background-color: white;
+        border: 1px solid #e1e4e8;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .options label:hover {
+        background-color: #f0f7ff;
+        border-color: #3498db;
+    }
+    .options input[type="radio"] {
+        margin-right: 10px;
+    }
+    /* Submit button styling */
+    .submit-btn {
+        display: block;
+        width: 100%;
+        max-width: 200px;
+        margin: 2rem auto 0;
+        padding: 1rem 2rem;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .submit-btn:hover {
+        background-color: #2980b9;
+    }
+    /* Quiz title styling */
+    #quiz-content h1 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    #quiz-content p {
+        color: #666;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    /* Category title styling */
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin: 2rem 0;
+    }
+</style>
+</head>
+<body>
+    <header>
+        <a href="/create-quiz">Create Quiz</a>
+        <a href="/all-quizzes">All Quizzes</a>
+        <a href="/all-questions">All Questions</a>
+        <a href="/find-quiz">Search Quiz</a>
+        <a href="/">Home</a>
+    </header>
+    <div class="quiz-container">
+        <div id="quiz-content">
+            <% if (quiz) { %>
+                <h1><%= quiz.name %></h1>
+                <p>Category: <%= quiz.category %></p>
+                <form id="quiz-form">
+                    <% quiz.questions.forEach((question, index) => { %>
+                        <div class="question">
+                            <h3>Question <%= index + 1 %>: <%= question.text %></h3>
+                            <div class="options">
+                                <% question.answ.forEach(answer => { %>
+                                    <label>
+                                        <input type="radio" 
+                                               name="question<%= index %>" 
+                                               value="<%= answer %>">
+                                        <%= answer %>
+                                    </label>
+                                <% }); %>
+                            </div>
+                        </div>
+                    <% }); %>
+                    <button type="submit" class="submit-btn">Submit Quiz</button>
+                </form>
+            <% } else { %>
+                <p>Quiz not found.</p>
+            <% } %>
+        </div>
+    </div>    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('quiz-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const answers = [];
+                
+                // Get quiz ID from URL query parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const quizId = urlParams.get('id');
+                // Fetch quiz data to get correct answers
+                const response = await fetch(`/quizzes?id=${quizId}`);
+                const res = await response.json();
+                const quizData = res.quizzes[0];
+                const correctAnswers = quizData.questions.map(q => q.correct);
+                
+                // Get total questions from the form
+                const questions = document.querySelectorAll('.question');
+                
+                // Collect user answers
+                questions.forEach((_, index) => {
+                    const selected = document.querySelector(`input[name="question${index}"]:checked`);
+                    answers.push(selected ? selected.value.split(")")[0] : null);
+                });
+
+                // Calculate score
+                const score = answers.reduce((total, answer, index) => {
+                    return total + (answer === correctAnswers[index] ? 1 : 0);
+                }, 0);
+
+                alert(`Your score: ${score} out of ${questions.length}`);
+            });
+        });
+    </script>
+</body>
+</html>
