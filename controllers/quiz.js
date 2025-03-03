@@ -54,21 +54,18 @@ exports.postQuiz = async (req, res, next) => {
 };
 
 exports.getQuiz = async (req, res, next) => {
-  const { id, name, category, form } = req.query;
+  const { name, category, form } = req.query;
   const currentPage = req.query.page || 1;
-  const perPage = 2;
+  const perPage = 10;
 
   try {
     let filterQuery = {};
-
-    // Build filter query based on provided parameters
-    if (id) filterQuery._id = id;
     if (name) filterQuery.name = name;
     if (category) filterQuery.category = category;
     if (form) filterQuery.form = form;
-
-    const totalItems = await Quiz.find(filterQuery).countDocuments();
-    const quizzes = await Quiz.find(filterQuery)
+    console.log(filterQuery, 123)
+    const totalItems = await Quiz.find({name: { '$regex': `${name}`, '$options': 'i' }}).countDocuments();
+    const quizzes = await Quiz.find({name: { '$regex': `${name}`, '$options': 'i' }})
       .skip((currentPage - 1) * perPage)
       .limit(perPage)
       .populate("questions");
@@ -77,15 +74,6 @@ exports.getQuiz = async (req, res, next) => {
       const error = new Error("No quizzes found matching the criteria");
       error.statusCode = 404;
       throw error;
-    }
-
-    if (id) {
-      return res.json({
-        message: "Quiz",
-        quizzes: quizzes,
-        totalItems: totalItems,
-        currentPage: currentPage,
-      });
     }
 
     return res.json({
@@ -99,7 +87,7 @@ exports.getQuiz = async (req, res, next) => {
   }
 };
 
-exports.getQuizzes = async (req, res, next) => {
+exports.getAQuizzes = async (req, res, next) => {
   const currentPage = req.query.page || 1;
   const perPage = 2;
   try {

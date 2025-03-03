@@ -212,23 +212,37 @@
             const categoryFilter = document.getElementById('categoryFilter');
             const quizGrid = document.getElementById('quizGrid');
 
-            function fetchAndDisplayQuizzes() {
-                const searchTerm = searchBar.value.toLowerCase();
-                const category = categoryFilter.value;
+            function fetchAllQuizzes() {
+                fetch('http://localhost:3000/Allquizzes').then(res => res.json()).then(data => {
+                    console.log(data);
+                    quizGrid.innerHTML = data.quizzes.map(quiz => `
+                        <div class="quiz-card">
+                            <h3>${quiz.name}</h3>
+                            <p>Category: ${quiz.category}</p>
+                            <p>Questions: ${quiz.questions.length}</p>
+                            <a href="/getQuizById?id=${quiz._id}" class="submit-btn">Start Quiz</a>
+                        </div>
+                    `).join('');
+                });
+            }
 
+            fetchAllQuizzes();
+            function fetchAndDisplayQuizzes() {
+                const searchTerm = searchBar.value;
+                const category = categoryFilter.value;
                 // Only fetch if there's a search term or category selected
                 if (searchTerm || category) {
-                    fetch(`http://localhost:3000/quizzes?search=${searchTerm}&category=${category}`)
+                    fetch(`http://localhost:3000/quizzes?name=${searchTerm}&category=${category}`)
                         .then(response => response.json())
                         .then(data => {
-                            if (data.quizzes.length === 0) {
+                            if (data.quizzes.length === 0 || !data.quizzes) {
                                 quizGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No quizzes found</p>';
                             } else {
                                 quizGrid.innerHTML = data.quizzes.map(quiz => `
                                     <div class="quiz-card">
                                         <h3>${quiz.name}</h3>
                                         <p>Category: ${quiz.category}</p>
-                                        <p>Questions: ${quiz.questionCount}</p>
+                                        <p>Questions: ${quiz.questions.length}</p>
                                         <a href="/getQuizById?id=${quiz._id}" class="submit-btn">Start Quiz</a>
                                     </div>
                                 `).join('');
@@ -236,10 +250,13 @@
                         })
                         .catch(error => {
                             console.error('Error fetching quizzes:', error);
-                            quizGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Error loading quizzes. Please try again later.</p>';
+                            quizGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No quizzes found</p>';
                         });
                 } else {
                     quizGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Use the search bar or select a category to find quizzes</p>';
+                }
+                if(searchBar.value.length == 0) {
+                    fetchAllQuizzes();
                 }
             }
 

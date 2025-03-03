@@ -60,11 +60,12 @@ router.get("/getQuizById", quizController.getQuizById);
 
 router.get("/quizzes", quizController.getQuiz);
 
-router.get("/quizzes", quizController.getQuizzes);
+router.get("/Allquizzes", quizController.getAQuizzes);
 
 router.get("/find-quiz", quizController.renderQuizCategories);
 
 router.get("/all-quizzes", quizController.renderAllQuizzes);
+
 
 router.get("/create-quiz", quizController.renderCreateQuiz);
 

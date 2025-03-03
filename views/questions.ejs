@@ -134,16 +134,15 @@
                     console.error('Invalid question format:', question);
                     return;
                 }
-                console.log(question);
                 const options = question.answ.map((option, index) => `
                     <div class="option ${question.correct === index ? 'correct' : ''}">
                         ${index + 1}. ${option}
                     </div>
                 `).join('');
-
                 questions.innerHTML += `
                     <div class="question-card">
-                        <div class="question-title">${question.text}</div>
+                        <div class="question-title">${question.text}</div>                        
+                        <h3>Test: ${question.nameOfTest}</h3>
                         <div class="options">${options}</div>
                     </div>
                 `;
