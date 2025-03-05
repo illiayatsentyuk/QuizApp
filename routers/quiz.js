@@ -56,14 +56,22 @@ router.post(
   ],
   quizController.postQuiz
 );
+router.get("/getQuizById", quizController.getQuizById);
 
-router.get("/quiz", quizController.getQuiz);
+<<<<<<< HEAD
+router.get("/getquizzes", quizController.getQuizzes);
 
-router.get("/quizzes", quizController.getQuizzes);
+router.get("/allquizzes", quizController.getAllQuizzes);
+=======
+router.get("/quizzes", quizController.getQuiz);
+
+router.get("/Allquizzes", quizController.getAQuizzes);
+>>>>>>> 3c66e45373b438a869d1c7fc559108cd2793c91d
 
 router.get("/find-quiz", quizController.renderQuizCategories);
 
 router.get("/all-quizzes", quizController.renderAllQuizzes);
+
 
 router.get("/create-quiz", quizController.renderCreateQuiz);
 
