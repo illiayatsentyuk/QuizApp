@@ -53,8 +53,8 @@ exports.postQuiz = async (req, res, next) => {
   }
 };
 
-exports.getQuizzes = async (req, res, next) => {
-  const { name, category, form } = req.query;
+exports.getQuiz = async (req, res, next) => {
+  const { id, name, category, form } = req.query;
   const currentPage = req.query.page || 1;
   const perPage = 10;
 
@@ -63,14 +63,9 @@ exports.getQuizzes = async (req, res, next) => {
     if (name) filterQuery.name = name;
     if (category) filterQuery.category = category;
     if (form) filterQuery.form = form;
-    console.log(filterQuery, 123);
-    const totalItems = await Quiz.find({
-      name: { $regex: `${name}`, $options: "i" },
-    }).countDocuments();
 
-    const quizzes = await Quiz.find({
-      name: { $regex: `${name}`, $options: "i" },
-    })
+    const totalItems = await Quiz.find(filterQuery).countDocuments();
+    const quizzes = await Quiz.find(filterQuery)
       .skip((currentPage - 1) * perPage)
       .limit(perPage)
       .populate("questions");
@@ -91,7 +86,8 @@ exports.getQuizzes = async (req, res, next) => {
     next(err);
   }
 };
-exports.getAQuizzes = async (req, res, next) => {
+
+exports.getQuizzes = async (req, res, next) => {
   const currentPage = req.query.page || 1;
   const perPage = 2;
   try {
@@ -99,7 +95,6 @@ exports.getAQuizzes = async (req, res, next) => {
     const quizzes = await Quiz.find()
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
-
     return res.json({
       message: "Quizzes",
       quizzes: quizzes,

@@ -56,17 +56,10 @@ router.post(
   ],
   quizController.postQuiz
 );
-router.get("/getQuizById", quizController.getQuizById);
 
-<<<<<<< HEAD
-router.get("/getquizzes", quizController.getQuizzes);
+router.get("/quiz", quizController.getQuiz);
 
-router.get("/allquizzes", quizController.getAllQuizzes);
-=======
-router.get("/quizzes", quizController.getQuiz);
-
-router.get("/Allquizzes", quizController.getAQuizzes);
->>>>>>> 3c66e45373b438a869d1c7fc559108cd2793c91d
+router.get("/quizzes", quizController.getQuizzes);
 
 router.get("/find-quiz", quizController.renderQuizCategories);
 

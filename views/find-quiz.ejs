@@ -208,50 +208,34 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const searchBar = document.getElementById('searchBar');
-            const categoryFilter = document.getElementById('categoryFilter');
-            const quizGrid = document.getElementById('quizGrid');
-
-            function fetchAllQuizzes() {
-<<<<<<< HEAD
-                fetch('http://localhost:3000/allquizzes').then(res => res.json()).then(data => {
-=======
-                fetch('http://localhost:3000/Allquizzes').then(res => res.json()).then(data => {
->>>>>>> 3c66e45373b438a869d1c7fc559108cd2793c91d
-                    console.log(data);
-                    quizGrid.innerHTML = data.quizzes.map(quiz => `
-                        <div class="quiz-card">
-                            <h3>${quiz.name}</h3>
-                            <p>Category: ${quiz.category}</p>
-                            <p>Questions: ${quiz.questions.length}</p>
-                            <a href="/getQuizById?id=${quiz._id}" class="submit-btn">Start Quiz</a>
-                        </div>
-                    `).join('');
-                });
-            }
-
-            fetchAllQuizzes();
-            function fetchAndDisplayQuizzes() {
-                const searchTerm = searchBar.value;
-                const category = categoryFilter.value;
-                // Only fetch if there's a search term or category selected
-                if (searchTerm || category) {
-<<<<<<< HEAD
-                    fetch(`http://localhost:3000/getquizzes?name=${searchTerm}&category=${category}`)
-=======
-                    fetch(`http://localhost:3000/quizzes?name=${searchTerm}&category=${category}`)
->>>>>>> 3c66e45373b438a869d1c7fc559108cd2793c91d
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.quizzes.length === 0 || !data.quizzes) {
-                                quizGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No quizzes found</p>';
-                            } else {
-                                quizGrid.innerHTML = data.quizzes.map(quiz => `
-                                    <div class="quiz-card">
-                                        <h3>${quiz.name}</h3>
-                                        <p>Category: ${quiz.category}</p>
-                                        <p>Questions: ${quiz.questions.length}</p>
-                                        <a href="/getQuizById?id=${quiz._id}" class="submit-btn">Start Quiz</a>
+            // Get quiz ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const quizId = urlParams.get('id');
+            console.log(quizId);
+            // Fetch quiz data
+            fetch(`http://localhost:3000/quiz?id=${quizId}`)
+                .then(response => response.json())
+                .then(res => {
+                    const quiz = res.quizzes[0];
+                    const quizContent = document.getElementById('quiz-content');
+                    console.log(quiz);
+                    // Display quiz name
+                    quizContent.innerHTML = `
+                        <h1>${quiz.name}</h1>
+                        <p>Category: ${quiz.category}</p>
+                        <form id="quiz-form">
+                            ${quiz.questions.map((question, index) => `
+                                <div class="question">
+                                    <h3>Question ${index + 1}: ${question.text}</h3>
+                                    <div class="options">
+                                        ${question.answ.map(answer => `
+                                            <label>
+                                                <input type="radio" 
+                                                       name="question${index}" 
+                                                       value="${answer}">
+                                                ${answer}
+                                            </label>
+                                        `).join('')}
                                     </div>
                                 `).join('');
                             }
