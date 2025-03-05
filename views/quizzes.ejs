@@ -133,7 +133,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const quizContent = document.getElementById('quiz-content');
-        fetch('http://localhost:3000/quizzes').then(res => res.json()).then(data => {
+        fetch('http://localhost:3000/allquizzes').then(res => res.json()).then(data => {
             console.log(data);
             data.quizzes.forEach(quiz => {
                 quizContent.innerHTML += `

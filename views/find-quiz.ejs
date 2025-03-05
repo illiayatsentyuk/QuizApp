@@ -184,9 +184,6 @@
         <a href="/find-quiz">Search Quiz</a>
         <a href="/">Home</a>
     </header>
-    <div class="quiz-container">
-        <div id="quiz-content"></div>
-    </div>    
     <h1>Find quiz</h1>
     
     <div class="search-filter-container">
@@ -208,34 +205,42 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Get quiz ID from URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const quizId = urlParams.get('id');
-            console.log(quizId);
-            // Fetch quiz data
-            fetch(`http://localhost:3000/quiz?id=${quizId}`)
-                .then(response => response.json())
-                .then(res => {
-                    const quiz = res.quizzes[0];
-                    const quizContent = document.getElementById('quiz-content');
-                    console.log(quiz);
-                    // Display quiz name
-                    quizContent.innerHTML = `
-                        <h1>${quiz.name}</h1>
-                        <p>Category: ${quiz.category}</p>
-                        <form id="quiz-form">
-                            ${quiz.questions.map((question, index) => `
-                                <div class="question">
-                                    <h3>Question ${index + 1}: ${question.text}</h3>
-                                    <div class="options">
-                                        ${question.answ.map(answer => `
-                                            <label>
-                                                <input type="radio" 
-                                                       name="question${index}" 
-                                                       value="${answer}">
-                                                ${answer}
-                                            </label>
-                                        `).join('')}
+            const searchBar = document.getElementById('searchBar');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const quizGrid = document.getElementById('quizGrid');
+
+            function fetchAllQuizzes() {
+                fetch('http://localhost:3000/allquizzes').then(res => res.json()).then(data => {
+                    console.log(data);
+                    quizGrid.innerHTML = data.quizzes.map(quiz => `
+                        <div class="quiz-card">
+                            <h3>${quiz.name}</h3>
+                            <p>Category: ${quiz.category}</p>
+                            <p>Questions: ${quiz.questions.length}</p>
+                            <a href="/getQuizById?id=${quiz._id}" class="submit-btn">Start Quiz</a>
+                        </div>
+                    `).join('');
+                });
+            }
+
+            fetchAllQuizzes();
+            function fetchAndDisplayQuizzes() {
+                const searchTerm = searchBar.value;
+                const category = categoryFilter.value;
+                // Only fetch if there's a search term or category selected
+                if (searchTerm || category) {
+                    fetch(`http://localhost:3000/getquizzes?name=${searchTerm}&category=${category}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.quizzes.length === 0 || !data.quizzes) {
+                                quizGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No quizzes found</p>';
+                            } else {
+                                quizGrid.innerHTML = data.quizzes.map(quiz => `
+                                    <div class="quiz-card">
+                                        <h3>${quiz.name}</h3>
+                                        <p>Category: ${quiz.category}</p>
+                                        <p>Questions: ${quiz.questions.length}</p>
+                                        <a href="/getQuizById?id=${quiz._id}" class="submit-btn">Start Quiz</a>
                                     </div>
                                 `).join('');
                             }
