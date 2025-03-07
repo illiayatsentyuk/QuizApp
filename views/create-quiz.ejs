@@ -19,55 +19,157 @@
     <div class="create-quiz-container">
         <label for="quiz-name">Quiz Name</label>
         <input type="text" id="quiz-name" placeholder="Enter the name of your quiz">
-        
+
+        <!-- <label for="quiz-category">Quiz Category</label>
+        <div class="dropdown" data-dropdown-ul>
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Catagories</button>
+                    <ul class="dropdown-menu" >
+                        <li class="dropdown-item">Algebra</li>
+                        <li class="dropdown-item">Biology</li>
+                        <li class="dropdown-item">Ukrainian</li>
+                        <li class="dropdown-item">English</li>
+                        <li class="dropdown-item">Geometry</li>
+                        <li class="dropdown-item">PE</li>
+                    </ul>
+        </div> -->
         <label for="quiz-category">Quiz Category</label>
-        <input type="text" id="quiz-category" placeholder="Enter the category (e.g., Science, History)">
-        
+        <select name="quiz-category" id="quiz-category" class="dropdown-menu">
+            <option value="algebra">Algebra</option>
+            <option value="geometry">Geometry</option>
+            <option value="ukrainian">Ukrainian</option>
+            <option value="history">History</option>
+            <option value="english">English</option>
+        </select>
+
+
         <label for="quiz-form">Quiz Form</label>
         <input type="text" id="quiz-form" placeholder="Enter the quiz form">
-        
+
         <label for="quiz-questions">Quiz Questions</label>
-        <div class="format-help">
+        <!-- <div class="format-help">
             Format: Question;Option1 Option2 Option3 Option4;CorrectAnswer
             <br>
             Add each question on a new line
         </div>
         <textarea id="quiz-questions" 
                   placeholder="Example:&#10;What is the capital of France?;Paris London Berlin Madrid;Paris&#10;Which planet is closest to the sun?;Venus Mercury Mars Earth;Mercury"></textarea>
-        
+         -->
         <button id="create-quiz">Create Quiz</button>
+    </div>
+    <div class="modal-overlay">
+        <div class="modal-container">
+            <div class="title-container">
+                <h1 class="modal-title">Create Quiz</h1>
+                <p class="modal-description">Please write question there</p>
+            </div>
+            <div class="form-container">
+                <button class="add-question-btn">Add Question</button>
+            </div>
+        </div>
     </div>
 </body>
 </html>
+
 <script>
     window.onload = function () {
+        const modalOverlay = document.querySelector(".modal-overlay");
         const quizName = document.querySelector("#quiz-name");
         const quizCategory = document.querySelector("#quiz-category");
         const quizForm = document.querySelector("#quiz-form");
-        const quizQuestions = document.querySelector("#quiz-questions");
-        const quizCorrectAnswers = document.querySelector("#quiz-correct-answers");
-        const createQuiz = document.querySelector("#create-quiz");
-        createQuiz.addEventListener("click", () => {
-            const array = []
-            const quizArray = quizQuestions.value.trim().split("\n");
-            const quizQuestionsArray = quizArray.map(el => el.split(";")[0]);
-            const quizAnswersArray = quizArray.map(el => el.split(";")[1]);
-            console.log(quizAnswersArray);
-            const quizNewAnswersArray = quizAnswersArray.map(el => el.split(" "));
-            const quizCorrectAnswersArray = quizArray.map(el => el.split(";")[2]);
-            for (let i = 0; i < quizQuestionsArray.length; i++) {
-                array.push({
-                    text: quizQuestionsArray[i],
-                    answ: quizNewAnswersArray[i],
-                    correct: quizCorrectAnswersArray[i]
-                })
+        const createQuizBtn = document.querySelector("#create-quiz");
+        const addQuestionBtn = document.querySelector(".add-question-btn");
+        const formContainer = document.querySelector(".form-container");
+
+        // Function to create a new question form
+        function createQuestionForm() {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-form';
+            questionDiv.innerHTML = `
+                <input type="text" class="question-text" placeholder="Enter your question">
+                <div class="options-container">
+                    <input type="text" class="option" placeholder="Option 1">
+                    <input type="text" class="option" placeholder="Option 2">
+                    <input type="text" class="option" placeholder="Option 3">
+                    <input type="text" class="option" placeholder="Option 4">
+                </div>
+                <select class="correct-answer">
+                    <option value="">Select correct answer</option>
+                    <option value="0">Option 1</option>
+                    <option value="1">Option 2</option>
+                    <option value="2">Option 3</option>
+                    <option value="3">Option 4</option>
+                </select>
+                <button type="button" class="remove-question">Remove Question</button>
+            `;
+
+            // Add event listener for remove button
+            const removeBtn = questionDiv.querySelector('.remove-question');
+            removeBtn.addEventListener('click', () => questionDiv.remove());
+
+            return questionDiv;
+        }
+
+        // Function to gather all questions data
+        function gatherQuestionsData() {
+            const questions = [];
+            const questionForms = document.querySelectorAll('.question-form');
+
+            questionForms.forEach(form => {
+                const questionText = form.querySelector('.question-text').value;
+                const options = Array.from(form.querySelectorAll('.option')).map(opt => opt.value);
+                const correctAnswerIndex = form.querySelector('.correct-answer').value;
+
+                if (questionText && options.every(opt => opt) && correctAnswerIndex !== '') {
+                    questions.push({
+                        text: questionText,
+                        answ: options,
+                        correct: options[correctAnswerIndex]
+                    });
+                }
+            });
+
+            return questions;
+        }
+
+        // Add Question Button Click Handler
+        addQuestionBtn.addEventListener('click', () => {
+            formContainer.appendChild(createQuestionForm());
+        });
+
+        // Create Quiz Button Click Handler
+        createQuizBtn.addEventListener("click", () => {
+            if (!quizName.value || !quizCategory.value || !quizForm.value) {
+                alert('Please fill in all the required fields');
+                return;
             }
-            console.log({
-                    name: quizName.value,
-                    category: quizCategory.value,
-                    form: quizForm.value,
-                    questions: array,
-                });
+            modalOverlay.style.display = "flex";
+            // Add first question form automatically
+            if (!formContainer.querySelector('.question-form')) {
+                formContainer.appendChild(createQuestionForm());
+            }
+        });
+
+        // Close modal when clicking outside
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.style.display = "none";
+            }
+        });
+
+        // Submit Quiz Handler
+        const submitQuiz = document.createElement('button');
+        submitQuiz.textContent = 'Submit Quiz';
+        submitQuiz.className = 'submit-quiz-btn';
+        formContainer.appendChild(submitQuiz);
+
+        submitQuiz.addEventListener('click', () => {
+            const questions = gatherQuestionsData();
+
+            if (questions.length === 0) {
+                alert('Please add at least one question with all fields filled');
+                return;
+            }
+
             fetch("http://localhost:3000/quiz", {
                 method: "POST",
                 headers: {
@@ -77,14 +179,19 @@
                     name: quizName.value,
                     category: quizCategory.value,
                     form: quizForm.value,
-                    questions: array,
+                    questions: questions,
                 }),
-            }).then(res => res.json()).then(data => {
-                console.log(data);
-                location.href = '/getQuizById?id=' + data.quiz._id;   
-            }).catch(err => {
-                console.log(err);
-            });
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    location.href = '/getQuizById?id=' + data.quiz._id;
+                })
+                .catch(err => {
+                    console.log(err);
+                    alert('Error creating quiz. Please try again.');
+                });
         });
     };
 </script>
+
